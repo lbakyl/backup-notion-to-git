@@ -233,6 +233,10 @@ Paragraphs, Heading 1/2/3, Bulleted lists, Numbered lists, To-do lists, Code blo
 
 **Slug collisions**: If two pages have identical titles, both get a `-{page_id}` suffix in their directory name. This is handled automatically.
 
+## Disclaimer
+
+This script was designed and architected by a human. The content of individual functions, this readme file as well as testing to simulate various scenarios were completed with the support of Claude Opus 4.6. All parts of the code have been reviewed by a human. While the code is believed to be safe and ready to use, the responsibility lies with the user.
+
 ## License
 
 MIT
