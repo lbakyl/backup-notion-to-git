@@ -34,6 +34,11 @@ import urllib.parse
 from datetime import datetime, timezone
 from pathlib import Path
 
+try:
+    from zoneinfo import ZoneInfo
+except ImportError:
+    ZoneInfo = None
+
 # ============================================================
 # LOGGING
 # ============================================================
@@ -150,6 +155,7 @@ def build_config(env: dict) -> dict:
         "ai_model": env.get("AI_MODEL", "claude-haiku-4-5-20251001"),
         "discord_level": discord_level,
         "discord_webhook_url": env.get("DISCORD_WEBHOOK_URL", ""),
+        "timezone": env.get("TIMEZONE", "UTC").strip(),
         "databases": databases,
     }
 
@@ -1039,7 +1045,15 @@ def main():
     log.info("=" * 60)
 
     summary = {}
-    now = datetime.now(timezone.utc).isoformat()
+    tz_name = config.get("timezone", "UTC")
+    if ZoneInfo:
+        try:
+            tz = ZoneInfo(tz_name)
+        except Exception:
+            tz = ZoneInfo("UTC")
+        now = datetime.now(tz).strftime("%d %b %Y, %H:%M %Z")
+    else:
+        now = datetime.utcnow().strftime("%d %b %Y, %H:%M UTC")
 
     for db in config["databases"]:
         db_id = db["notion_database_id"]
