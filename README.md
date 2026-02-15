@@ -114,9 +114,12 @@ crontab -e
 
 Verify your Python path with `which python3`.
 
-### Log rotation
+### Prepare Log file + Log rotation
 
 ```bash
+sudo touch /var/log/notion-gitea-backup.log
+chown your_username:your_username /var/log/notion-gitea-backup.log
+
 sudo nano /etc/logrotate.d/notion-gitea-backup
 ```
 
@@ -146,10 +149,10 @@ cron / manual run
         │           ├── Convert to markdown (30+ block types)
         │           ├── Download images → detect format → optional AI naming
         │           ├── Download attachments (PDFs, JSON, etc.)
-        │           ├── Flush stale assets/ and attachments/ directories
+        │           ├── Flush these foldesr: /assets/, /directories/
         │           ├── Commit index.md + assets + attachments to Gitea
         │           └── Save sync state (resumable on interrupt)
-        ├── Send Discord summary (with hostname)
+        ├── Send a Discord summary if allowed in config (with hostname)
         └── Exit 0 (success) or 1 (errors occurred)
 ```
 
@@ -159,25 +162,25 @@ Each backed-up page gets its own directory:
 
 ```
 notion-it-webdev-kb/
-├── deploy-vaultwarden/
+├── article-1/
 │   ├── index.md
 │   ├── assets/
-│   │   ├── 1-prerequisites.png
-│   │   ├── 2-install-docker.png
-│   │   └── 3-configure-nginx.png
+│   │   ├── 1-image1.png
+│   │   ├── 2-image2.png
+│   │   └── 3-image3.png
 │   └── attachments/
-│       └── docker-compose.yml
-├── setup-prometheus/
+│       └── example.yml
+├── article2/
 │   ├── index.md
 │   └── assets/
 │       └── ...
-└── galera-cluster-deployment/
+└── article3/
     └── index.md
 ```
 
 ## AI image naming
 
-With `AI_NAMING_ENABLED=1` and a valid API key, each image is sent to the configured AI model for a descriptive filename:
+With `AI_NAMING_ENABLED=1` and a valid API key, each image is sent to the configured AI model for a descriptive filename. For example:
 
 - **Without AI**: `1-prerequisites.png`, `2-install-docker.png`
 - **With AI**: `1-prerequisites-proxmox-cluster-dashboard.png`, `2-install-docker-terminal-output.png`
@@ -186,19 +189,19 @@ The AI naming includes a circuit breaker — after 5 consecutive failures (e.g. 
 
 Works with any Messages API-compatible endpoint (Anthropic, OpenRouter, etc.) via the `AI_API_URL` setting.
 
-**Cost**: ~$0.001–0.002 per image with Claude Haiku.
+**Cost**: ~$0.001–0.002 per image with Claude Haiku. This setting is optional.
 
 ## Discord notifications
 
-When configured, the script sends a summary to Discord after each run:
+When configured (optional), the script sends a summary to Discord after each run:
 
 ```
 📋 Notion → Git Backup Complete
 
-✅ IT & WebDev KB
+✅ How-tos
   Pages synced: 5
   Files committed: 47
-  Pages: Deploy Vaultwarden, Setup Prometheus, ...
+  Pages: Article1, Article2, ...
 
 ⚠️ Important Documents
   Pages synced: 2
@@ -206,7 +209,7 @@ When configured, the script sends a summary to Discord after each run:
   ❌ Errors: 1
 
 🕐 Sync completed at 2026-02-14T07:00:00Z
-🖥️ Host: docker-metrics
+🖥️ Host: my-host
 ```
 
 ## Supported Notion block types
@@ -220,7 +223,7 @@ Paragraphs, Heading 1/2/3, Bulleted lists, Numbered lists, To-do lists, Code blo
 | `notion-gitea-backup.py` | The backup script (~1200 lines, zero dependencies) |
 | `.env.example` | Configuration template |
 | `.env` | Your configuration (not committed) |
-| `sync-state.json` | Per-page sync timestamps (auto-generated) |
+| `sync-state.json` | Per-page sync timestamps (auto-generated, not committed) |
 | `.gitignore` | Excludes `.env` and `sync-state.json` |
 
 ## Troubleshooting
