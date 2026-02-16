@@ -21,8 +21,8 @@ A single Python script that backs up your Notion databases to self-hosted Gitea 
 
 ```bash
 # 1. Clone
-git clone https://github.com/YOUR_USERNAME/notion-gitea-backup.git
-cd notion-gitea-backup
+git clone https://github.com/lbakyl/backup-notion-to-git.git
+cd backup-notion-to-git
 
 # 2. Configure
 cp .env.example .env
@@ -77,8 +77,13 @@ Key settings:
 | `GIT_BASE_URL` | Yes | Gitea API URL (e.g. `https://gitea.example.com/api/v1`) |
 | `GIT_TOKEN` | Yes | Gitea API token with `repo` scope |
 | `GIT_OWNER` | Yes | Gitea username or org that owns the repos |
-| `AI_NAMING_ENABLED` | No | `0` to disable, `1` to enable AI image naming |
-| `DISCORD_LEVEL` | No | `0` = never, `1` = errors only, `2` = always |
+| `AI_NAMING_ENABLED` | No | `0` to disable (default), `1` to enable AI image naming |
+| `AI_API_URL` | No | AI endpoint URL (default: `https://api.anthropic.com/v1/messages`) |
+| `AI_API_KEY` | No | API key for AI image naming (required if `AI_NAMING_ENABLED=1`) |
+| `AI_MODEL` | No | AI model to use (default: `claude-haiku-4-5-20251001`) |
+| `DISCORD_LEVEL` | No | `0` = never (default), `1` = errors only, `2` = always |
+| `DISCORD_WEBHOOK_URL` | No | Discord webhook URL (required if `DISCORD_LEVEL` > 0) |
+| `TIMEZONE` | No | IANA timezone for Discord timestamps (default: `UTC`, e.g. `Europe/Prague`) |
 | `DB1_NOTION_ID` | Yes | Notion database ID (32-char hex) |
 | `DB1_GIT_REPO` | Yes | Target Gitea repository name |
 | `DB1_LABEL` | Yes | Human-readable label for logs and Discord |
@@ -149,7 +154,7 @@ cron / manual run
         │           ├── Convert to markdown (30+ block types)
         │           ├── Download images → detect format → optional AI naming
         │           ├── Download attachments (PDFs, JSON, etc.)
-        │           ├── Flush these foldesr: /assets/, /directories/
+        │           ├── Flush stale files from assets/ and attachments/
         │           ├── Commit index.md + assets + attachments to Gitea
         │           └── Save sync state (resumable on interrupt)
         ├── Send a Discord summary if allowed in config (with hostname)
@@ -208,7 +213,7 @@ When configured (optional), the script sends a summary to Discord after each run
   Files committed: 8
   ❌ Errors: 1
 
-🕐 Sync completed at 2026-02-14T07:00:00Z
+🕐 Sync completed at 15 Feb 2026, 23:45 CET
 🖥️ Host: my-host
 ```
 
